@@ -1,0 +1,197 @@
+https://www.serveradminz.com/blog/?p=245
+
+
+LAMP installation and configuration
+
+#Configuring LAMP-LINUX APACHE MYSQL PHP
+#1.LINUX here i use machine preinstalled with rhel 6 desktop kde gnome packages
+#installing the LAMP to /LAMP folder /LAMP/http /LAMP/mysql /LAMP/php
+#First remove the installed packages
+#yum erase http*
+#yum erase mysql*
+yum erase php*
+
+#installing and configuring APACHE—-
+
+#The Package we use are httpd-2.4.3.tar.gz
+
+–>tarxvf httpd-2.4.3.tar.gz
+–>cd httpd-2.4.3
+–>./configure –prefix=/LAMP/http/ –enable-module=so
+
+#Now an error will occur asking for apr version-1.4 or greater
+
+#Download the apr from http://apr.apache.org/download.cgi
+#here i use apr-1.4.6.tar.gz apr-util-1.4.1.tar.gz
+
+–>tar xvf apr-1.4.6.tar.gz
+–>tar xvf apr-util-1.4.1.tar.gz
+–>mv apr-1.4.6 /lamp/http/httpd-2.4.3/srclib/apr
+–>mv apr-util-1.4.1 /lamp/http/httpd-2.4.3/srclib/apr-util
+–>./configure –prefix=/LAMP/http/ –enable-module=so–enable-rewrite=shared –with-included-apr
+
+##now if it will ask for pcre packages
+
+–>yum install -y pcre*
+–>./configure –prefix=/LAMP/http/ –enable-module=so–enable-rewrite=shared –with-included-apr
+
+–>make
+–>make install
+
+–>ls /LAMP/http
+
+#lists the installed files
+
+#to start and stop the service
+
+–>/LAMP/http/bin/apachectl start
+–>/LAMP/http/bin/apachectl stop
+
+#
+#MYSQL
+#
+
+shell> groupadd mysql
+shell> useradd -r -g mysql mysql
+shell> cd /usr/local
+shell> tar zxvf /path/to/mysql-VERSION-OS.tar.gz
+shell> ln -s full-path-to-mysql-VERSION-OS mysql
+shell> cd mysql
+shell> chown -R mysql .
+shell> chgrp -R mysql .
+shell> scripts/mysql_install_db –user=mysql
+shell> chown -R root .
+shell> chown -R mysql data
+# Next command is optional
+shell> cp support-files/my-medium.cnf /etc/my.cnf
+shell> bin/mysqld_safe –user=mysql &
+# Next command is optional
+shell> cp support-files/mysql.server /etc/init.d/mysql.server
+
+ 
+
+#Package- mysql-5.5.16.tar.gz
+
+–>tar -xvf mysql-5.5.16.tar.gz
+–>cd mysql-5.5.16
+–>yum install make
+–>yum install cmake
+–>cmake -DCMAKE_INSTALL_PREFIX=/LAMP/mysql
+–>yum install -y *curses*
+–>cmake -DCMAKE_INSTALL_PREFIX=/LAMP/mysql
+–>rm -rf CMakeCache.txt
+–>cmake -DCMAKE_INSTALL_PREFIX=/LAMP/mysql
+–>yum install bison
+–>cmake -DCMAKE_INSTALL_PREFIX=/LAMP/mysql
+–>rm -rf CMakeCache.txt
+–>cmake -DCMAKE_INSTALL_PREFIX=/LAMP/mysql
+–>make
+–>make install
+
+–>updatedb
+–>locate mysql_install_db
+–>cd /LAMP/mysql/
+–>./scripts/mysql_install_db
+–>./scripts/mysql_install_db –user mysql
+–>cat /etc/ld.so.conf
+–>echo “/LAMP/mysql/lib/” >> /etc/ld.so.conf
+—>cat /etc/ld.so.conf
+–>ldconfig
+
+–>cd /LAMP/
+–>cd mysql/
+–>ls
+–>cp support-files/mysql.server /etc/rc.d/init.d/mysql
+–>/etc/rc.d/init.d/mysql start
+
+–>touch /tmp/mysql.sock
+–>chown mysql:mysql /tmp/mysql.sock
+–>./support-files/my-medium.cnf /etc/my.cnf
+
+##in case of any error like cannot manage pid file etc do as following
+
+–>/LAMP/mysql/scripts/mysql_install_db –user=mysql –ldata=/LAMP/mysql/data
+–>/LAMP/mysql/bin/mysqld_safe –datadir=/LAMP/mysql/data –user-mysql
+#that should solve the error
+
+testing
+mysqladmin -u root password new-password
+
+mysql -u root -p
+
+mysql>
+
+drop database test;
+use mysql;
+delete from db;
+delete from user where not (host=”localhost” and user=”root”);
+flush privileges;
+
+update user set user=”sqladmin” where user=”root”;
+flush privileges;
+
+create database foo;
+
+You should see the result:
+
+Query OK, 1 row affected (0.04 sec)
+
+mysql>
+
+Delete the database:
+
+drop database foo;
+
+You should see the result:
+
+Query OK, 0 rows affected (0.06 sec)
+
+mysql>
+
+To exit from mysql enter q:
+
+q
+
+#
+#PHP
+#
+
+#Package php-5.4.7.tar.gz
+
+–>tar xvf php-5.4.7.tar.gz
+–>cd php-5.4.7
+–>./configure –prefix=/LAMP/php/ –with-zlibs-dir=/usr/lib –with-xml –enable-mm=shared –with-apxs=/LAMP/http/bin/apxs
+
+–>./configure –prefix=/LAMP/php/ –with-zlibs-dir=/usr/lib –with-xml –enable-mm=shared –with-apxs2=/LAMP/http/bin/apxs
+
+–>yum install libxml
+–>yum install libxml*
+–>./configure –prefix=/LAMP/php/ –with-zlibs-dir=/usr/lib –with-xml –enable-mm=shared –with-apxs2=/LAMP/http/bin/apxs
+
+–>make
+–>232 make test
+–>make install
+
+–>cp php.ini-development /LAMP/php/lib/php.ini
+
+–>ln -s /LAMP/php/lib/php.ini /etc/php.ini
+#
+#Adding php to apache
+#
+
+–>vim /LAMP/http/conf/httpd.conf
+
+#To ensure your PHP files are properly interpreted add in httpd.conf
+
+——AddType application/x-httpd-php .php
+——AddType application/x-httpd-php-source .phps
+——AddType application/x-tar .tgz
+
+–>/LAMP/http/bin/apachectl restart
+
+–>/LAMP/http/bin/apachectl start
+
+–>touch /LAMP/http/htdocs/index.php
+–>rm -rf /LAMP/http/htdocs/index.html
+
+–>/LAMP/http/bin/apachectl restart
