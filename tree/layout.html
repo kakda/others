@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=us-ascii">
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+		
+	</head>
+	<body dir="auto">
+		<blockquote type="cite">
+			<div></div>
+		</blockquote>
+	</body>
+	<script type="text/javascript">
+		
+		var Tree = function(items){
+			this.info = {};
+			this.children = {};
+			this.items = items;
+		}
+		
+		Tree.prototype = {
+		
+			start : function(){
+				this.reset();
+			},
+			
+			addChild: function(usertype, id) {
+				this.children[usertype] = this.items[id];
+				var tree = new Tree(this.children[usertype] );
+				$.extend(this, tree.recursive());
+			},
+			
+			addChildren: function(usertype){
+				var that = this;
+				that.children[usertype] = [];
+				$.each(this[usertype], function(){
+					//var tree = new Tree(this);
+					//console.log(this)
+					that.addChild(usertype, this);
+				})
+			},
+			
+			hasChild : function(usertype){
+				return this.item[usertype] && this.item[usertype].length;
+			},
+			
+			reset : function(){
+				this.id = 1;
+				$.extend(this.info, this.items[0]);
+			},
+			
+			recursive : function (){
+				this.start();
+				this.hasChild('powerline_users') && this.addChildren('powerline_users');
+				this.hasChild('passup_users') 	 && this.addChildren('passup_users');
+				delete this.items;
+			},
+			
+			print : function(){
+				
+				console.log(this);
+			}
+		};
+		
+		$.ajax({
+			url : "dummy.php",
+			dataType : "json"
+		}).done(function(response){
+		
+			var tree = new Tree(response);
+			
+			tree.recursive();
+			tree.print();
+		//	for (var item = iter.start(); iter.hasNext(); item = iter.next()) {
+		//		console.log(item);
+		//	}
+	
+		});
+		
+	</script>
+</html>
